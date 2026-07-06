@@ -63,3 +63,17 @@ def test_plain_parser_unaffected():
 def test_is_cjk():
     assert all(is_cjk(c) for c in "漢あア「。￥Ａ")
     assert not any(is_cjk(c) for c in "aZ1 .(")
+
+
+# --- 素のCommonMarkで元々成立するケースは一切変えない (回帰テスト) ---
+UNCHANGED_CASES = [
+    "**日本語**。", "。**日本語**", "これは**日本語**。です",
+    "**あ**。**い**", "*斜体*。と続く", "_下線強調_。",
+    "**太字**、**続き**。", "「**引用**」と**次**。",
+    "**a**日本語**b**", "彼は**す**ごい",
+]
+
+
+@pytest.mark.parametrize("src", UNCHANGED_CASES)
+def test_valid_commonmark_output_unchanged(md, src):
+    assert md.render(src) == MarkdownIt("commonmark").render(src)
