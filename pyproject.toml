@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mdit-py-cjk-friendly"
+version = "0.1.0"
+description = "markdown-it-py plugin that makes CommonMark friendly to Japanese/Chinese/Korean: no spurious spaces at soft line breaks, working emphasis next to full-width punctuation."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "aiseed-dev" }]
+keywords = ["markdown", "markdown-it-py", "cjk", "japanese", "chinese", "korean", "commonmark"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Markup :: Markdown",
+]
+dependencies = ["markdown-it-py>=2.0,<4"]
+
+[project.urls]
+Homepage = "https://github.com/aiseed-dev/mdit-py-cjk-friendly"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mdit_py_cjk_friendly"]
