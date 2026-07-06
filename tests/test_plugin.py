@@ -77,3 +77,20 @@ UNCHANGED_CASES = [
 @pytest.mark.parametrize("src", UNCHANGED_CASES)
 def test_valid_commonmark_output_unchanged(md, src):
     assert md.render(src) == MarkdownIt("commonmark").render(src)
+
+
+# --- 和文約物が内側・英数字が外側のケース (、，。等。0.1.1 で修正) ---
+INNER_PUNCT_CASES = [
+    ("a**あ、**b", "<strong>あ、</strong>"),
+    ("a**あ，**b", "<strong>あ，</strong>"),
+    ("a**あ。**b", "<strong>あ。</strong>"),
+    ("a**あ！**b", "<strong>あ！</strong>"),
+    ("**abc、**です", "<strong>abc、</strong>"),
+    ("あ**、い**う", "<strong>、い</strong>"),
+    ("彼は**、**と書いた", "<strong>、</strong>"),
+]
+
+
+@pytest.mark.parametrize("src,expected", INNER_PUNCT_CASES)
+def test_inner_cjk_punct_with_ascii_outside(md, src, expected):
+    assert expected in md.render(src)

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mdit-py-cjk-friendly"
-version = "0.1.0"
+version = "0.1.1"
 description = "markdown-it-py plugin that makes CommonMark friendly to Japanese/Chinese/Korean: no spurious spaces at soft line breaks, working emphasis next to full-width punctuation."
 readme = "README.md"
 requires-python = ">=3.9"

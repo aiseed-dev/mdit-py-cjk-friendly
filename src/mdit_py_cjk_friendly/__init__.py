@@ -32,7 +32,7 @@ import re
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline.state_inline import StateInline
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = ["cjk_friendly", "is_cjk", "__version__"]
 
 # CJK: ideographs, kana, CJK symbols/punctuation, full/half-width forms.
@@ -77,23 +77,32 @@ def _scan_delims_cjk(self: StateInline, start: int, canSplitWord: bool):
     if not (is_cjk(last_char) or is_cjk(next_char)):
         return scanned
 
-    # Re-run the flanking computation treating CJK characters (letters and
-    # full-width punctuation alike) as punctuation. This makes a delimiter
-    # adjacent to CJK text usable as both opener and closer, which is the
-    # practical effect of the CJK-friendly specification draft.
+    # Re-run the flanking computation with the CJK-friendly rule
+    # (tats-u の仕様ドラフトの本質): CJK 文字は
+    #   - 「約物が隣にあると成立しやすくなる」判定 (allow 側) では約物として扱い、
+    #   - 「約物が隣にあると不成立になる」判定 (block 側) では約物として扱わない。
+    # これにより a**あ、**b (内側が和文約物・外側が英数字) も成立し、
+    # CJK が絡まないケースは代数的に素の CommonMark と一致する。
     from markdown_it.common.utils import isMdAsciiPunct, isPunctChar, isWhiteSpace
 
-    is_last_punct = is_cjk(last_char) or isMdAsciiPunct(ord(last_char)) or isPunctChar(last_char)
-    is_next_punct = is_cjk(next_char) or isMdAsciiPunct(ord(next_char)) or isPunctChar(next_char)
+    def _punct(ch):
+        return isMdAsciiPunct(ord(ch)) or isPunctChar(ch)
+
+    last_block = (not is_cjk(last_char)) and _punct(last_char)
+    next_block = (not is_cjk(next_char)) and _punct(next_char)
+    last_allow = is_cjk(last_char) or _punct(last_char)
+    next_allow = is_cjk(next_char) or _punct(next_char)
     is_last_ws = isWhiteSpace(ord(last_char))
     is_next_ws = isWhiteSpace(ord(next_char))
 
-    left_flanking = not (is_next_ws or (is_next_punct and not (is_last_ws or is_last_punct)))
-    right_flanking = not (is_last_ws or (is_last_punct and not (is_next_ws or is_next_punct)))
+    left_flanking = (not is_next_ws
+                     and (not next_block or is_last_ws or last_allow))
+    right_flanking = (not is_last_ws
+                      and (not last_block or is_next_ws or next_allow))
 
     if not canSplitWord:
-        can_open = left_flanking and ((not right_flanking) or is_last_punct)
-        can_close = right_flanking and ((not left_flanking) or is_next_punct)
+        can_open = left_flanking and ((not right_flanking) or last_allow)
+        can_close = right_flanking and ((not left_flanking) or next_allow)
     else:
         can_open = left_flanking
         can_close = right_flanking
