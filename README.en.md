@@ -1,6 +1,6 @@
 # mdit-py-cjk-friendly
 
-[日本語](README.md) | English | [简体中文](README.zh.md) | [한국어](README.ko.md)
+[日本語](README.md) | English | [繁體中文](README.zh-TW.md) | [한국어](README.ko.md)
 
 A [markdown-it-py](https://github.com/executablebooks/markdown-it-py) plugin
 that makes CommonMark friendly to Japanese, Chinese and Korean text.
