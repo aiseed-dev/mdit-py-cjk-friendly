@@ -20,6 +20,9 @@ classifiers = [
 ]
 dependencies = ["markdown-it-py>=2.0,<4"]
 
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
 [project.urls]
 Homepage = "https://github.com/aiseed-dev/mdit-py-cjk-friendly"
 
