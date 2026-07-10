@@ -41,6 +41,23 @@ CJK テキストでは有名な問題が2つ起きる:
 の考え方に従った、markdown-it-py 向けの独立・簡易実装です
 (JavaScript は本家プロジェクトのプラグインをどうぞ)。
 
+## ふりがな(ルビ)— オプション
+
+構文の追加になるため、別プラグイン `ruby` として opt-in で提供する
+(でんでんマークダウン形式):
+
+```python
+from mdit_py_cjk_friendly import cjk_friendly, ruby
+
+md = MarkdownIt("commonmark").use(cjk_friendly).use(ruby)
+md.render("{漢字|かんじ}")          # → <ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby>
+md.render("{東京|とう|きょう}")      # → モノルビ (読みの数=文字数のとき)
+```
+
+- 読みの数が文字数と合わない・空の要素がある場合は変換しない(推測しない)
+- `\{` でエスケープ。コードスパン・コードブロック内は変換されない
+- `<rp>` 括弧つきで出力するので、ルビ非対応の環境では「漢字(かんじ)」に落ちる
+
 ## 補足
 
 - 効くのは `.use(cjk_friendly)` したパーサだけ。同一プロセスの他の

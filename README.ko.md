@@ -47,6 +47,22 @@ CJK 텍스트에서 잘 알려진 두 가지 문제가 발생합니다:
   `MarkdownIt` 인스턴스는 업스트림과 완전히 동일하게 동작합니다.
 - markdown-it-py 2.x / 3.x 지원.
 
+## 후리가나(루비) — 선택
+
+문법 확장이므로 별도의 opt-in 플러그인 `ruby` 로 제공합니다
+(덴덴 마크다운 표기):
+
+```python
+from mdit_py_cjk_friendly import cjk_friendly, ruby
+
+md = MarkdownIt("commonmark").use(cjk_friendly).use(ruby)
+md.render("{漢字|かんじ}")   # → <ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby>
+```
+
+- 읽기 개수가 글자 수와 맞지 않거나 빈 요소가 있으면 변환하지 않음(추측하지 않음)
+- `\{` 로 이스케이프. 코드 스팬 안은 변환되지 않음
+- `<rp>` 괄호 포함 출력이므로 루비 미지원 환경에서는 「漢字(かんじ)」로 표시
+
 ## 라이선스
 
 MIT

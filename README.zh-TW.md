@@ -47,6 +47,21 @@ JavaScript 使用者請改用該專案的外掛)。
   `MarkdownIt` 實例保持與上游完全一致的行為。
 - 支援 markdown-it-py 2.x 與 3.x。
 
+## 注音／振假名(ruby)— 選用
+
+由於這是語法擴充,以獨立的 opt-in 外掛 `ruby` 提供(電電 Markdown 記法):
+
+```python
+from mdit_py_cjk_friendly import cjk_friendly, ruby
+
+md = MarkdownIt("commonmark").use(cjk_friendly).use(ruby)
+md.render("{漢字|かんじ}")   # → <ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby>
+```
+
+- 讀音數與字數不符或有空欄時不轉換(不猜測)
+- 以 `\{` 跳脫;程式碼範圍內不轉換
+- 輸出含 `<rp>` 括號,不支援 ruby 的環境會退化為「漢字(かんじ)」
+
 ## 授權條款
 
 MIT

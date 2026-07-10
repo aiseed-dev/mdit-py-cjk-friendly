@@ -32,8 +32,8 @@ import re
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline.state_inline import StateInline
 
-__version__ = "0.1.1"
-__all__ = ["cjk_friendly", "is_cjk", "__version__"]
+__version__ = "0.2.0"
+__all__ = ["cjk_friendly", "ruby", "is_cjk", "__version__"]
 
 # CJK: ideographs, kana, CJK symbols/punctuation, full/half-width forms.
 _CJK_RE = re.compile(
@@ -129,3 +129,61 @@ def cjk_friendly(md: MarkdownIt) -> None:
     """markdown-it-py plugin: ``MarkdownIt().use(cjk_friendly)``."""
     md._cjk_friendly = True  # type: ignore[attr-defined]
     md.add_render_rule("softbreak", _softbreak)
+
+
+# ---------------------------------------------------------------------------
+# 3. ruby (opt-in): ふりがな。でんでんマークダウン形式 {漢字|かんじ}
+#    cjk_friendly とは独立の追加構文なので、別プラグインとして明示的に
+#    ``md.use(ruby)`` したときだけ有効になる。
+# ---------------------------------------------------------------------------
+
+from markdown_it.common.utils import escapeHtml  # noqa: E402
+
+
+def _ruby_rule(state: StateInline, silent: bool) -> bool:
+    src = state.src
+    pos = state.pos
+    if src[pos] != "{":
+        return False
+    end = src.find("}", pos + 1)
+    if end < 0:
+        return False
+    inner = src[pos + 1 : end]
+    if "|" not in inner or "\n" in inner:
+        return False
+    base, *readings = inner.split("|")
+    if not base or not all(readings):
+        return False
+    if len(readings) > 1 and len(readings) != len(base):
+        return False  # モノルビは読みの数=文字数のときだけ。推測しない
+    if not silent:
+        pairs = (
+            list(zip(base, readings)) if len(readings) > 1 else [(base, readings[0])]
+        )
+        token = state.push("html_inline", "", 0)
+        token.content = (
+            "<ruby>"
+            + "".join(
+                f"{escapeHtml(b)}<rp>(</rp><rt>{escapeHtml(r)}</rt><rp>)</rp>"
+                for b, r in pairs
+            )
+            + "</ruby>"
+        )
+    state.pos = end + 1
+    return True
+
+
+def ruby(md: MarkdownIt) -> None:
+    """markdown-it-py plugin (opt-in): でんでん形式のふりがな。
+
+    ``MarkdownIt().use(ruby)`` で有効になる:
+
+    - ``{漢字|かんじ}``      → グループルビ
+    - ``{東京|とう|きょう}``  → モノルビ (読みの数=文字数のとき)
+    - 読みの数が合わない・空の要素がある場合は変換しない (推測しない)
+    - ``\\{`` でエスケープ。コードスパン内は変換されない
+
+    出力は ``<ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby>``
+    (ルビ非対応環境では「漢字(かんじ)」に落ちる)。
+    """
+    md.inline.ruler.after("escape", "cjk_ruby", _ruby_rule)

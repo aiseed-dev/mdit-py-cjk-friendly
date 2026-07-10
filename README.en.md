@@ -51,6 +51,25 @@ JavaScript users should use the plugins from that project).
   instances in the same process keep exact upstream behaviour.
 - Works with markdown-it-py 2.x and 3.x.
 
+## Furigana (ruby) — optional
+
+Because this adds syntax, it ships as a separate opt-in plugin `ruby`
+(Denden Markdown notation):
+
+```python
+from mdit_py_cjk_friendly import cjk_friendly, ruby
+
+md = MarkdownIt("commonmark").use(cjk_friendly).use(ruby)
+md.render("{漢字|かんじ}")          # → <ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby>
+md.render("{東京|とう|きょう}")      # → mono ruby (one reading per character)
+```
+
+- No conversion when reading count doesn't match the base length or a part
+  is empty (no guessing)
+- Escape with `\{`; code spans and code blocks are untouched
+- Output includes `<rp>` parentheses, so non-ruby renderers degrade to
+  「漢字(かんじ)」
+
 ## License
 
 MIT
