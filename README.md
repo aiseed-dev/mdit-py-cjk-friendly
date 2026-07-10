@@ -1,6 +1,6 @@
 # mdit-py-cjk-friendly
 
-日本語 | [English](README.en.md) | [繁體中文](README.zh-TW.md) | [한국어](README.ko.md)
+日本語 | [English](https://github.com/aiseed-dev/mdit-py-cjk-friendly/blob/main/README.en.md) | [繁體中文](https://github.com/aiseed-dev/mdit-py-cjk-friendly/blob/main/README.zh-TW.md) | [한국어](https://github.com/aiseed-dev/mdit-py-cjk-friendly/blob/main/README.ko.md)
 
 [markdown-it-py](https://github.com/executablebooks/markdown-it-py) を
 日本語・中国語・韓国語 (CJK) フレンドリーにするプラグイン。
