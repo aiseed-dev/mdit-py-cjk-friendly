@@ -6,9 +6,7 @@
 日本語・中国語・韓国語 (CJK) フレンドリーにするプラグイン。
 
 ```bash
-# PyPI 公開までは GitHub から:
-pip install "mdit-py-cjk-friendly @ git+https://github.com/aiseed-dev/mdit-py-cjk-friendly.git"
-# PyPI 公開後: pip install mdit-py-cjk-friendly
+pip install mdit-py-cjk-friendly
 ```
 
 ```python

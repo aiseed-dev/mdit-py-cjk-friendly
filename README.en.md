@@ -6,9 +6,7 @@ A [markdown-it-py](https://github.com/executablebooks/markdown-it-py) plugin
 that makes CommonMark friendly to Japanese, Chinese and Korean text.
 
 ```bash
-# Until the PyPI release, install from GitHub:
-pip install "mdit-py-cjk-friendly @ git+https://github.com/aiseed-dev/mdit-py-cjk-friendly.git"
-# After the PyPI release: pip install mdit-py-cjk-friendly
+pip install mdit-py-cjk-friendly
 ```
 
 ```python

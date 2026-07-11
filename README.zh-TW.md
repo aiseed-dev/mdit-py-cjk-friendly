@@ -6,9 +6,7 @@
 對中文、日文、韓文 (CJK) 文字友善的外掛。
 
 ```bash
-# PyPI 發佈前，請從 GitHub 安裝:
-pip install "mdit-py-cjk-friendly @ git+https://github.com/aiseed-dev/mdit-py-cjk-friendly.git"
-# PyPI 發佈後: pip install mdit-py-cjk-friendly
+pip install mdit-py-cjk-friendly
 ```
 
 ```python
