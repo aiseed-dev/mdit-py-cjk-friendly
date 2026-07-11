@@ -56,6 +56,40 @@ md.render("{東京|とう|きょう}")      # → モノルビ (読みの数=文
 - `\{` でエスケープ。コードスパン・コードブロック内は変換されない
 - `<rp>` 括弧つきで出力するので、ルビ非対応の環境では「漢字(かんじ)」に落ちる
 
+## 傍点・傍線(text-emphasis)— オプション
+
+でんでんマークダウンには圏点専用の記法が無く、`*text*` を縦書き時のみ
+圏点表示する仕様しか持たない(種別を区別できない)。傍点・傍線を種別込みで
+書き分けたい場合に、Pandoc 風のクラス付きスパンを別プラグイン `bouten`
+として opt-in で提供する:
+
+```python
+from mdit_py_cjk_friendly import cjk_friendly, bouten
+
+md = MarkdownIt("commonmark").use(cjk_friendly).use(bouten)
+md.render("[邪智暴虐]{.sesame_dot}")      # → <em class="sesame_dot">邪智暴虐</em>
+md.render("[あ]{.underline_double}")      # → <em class="underline_double">あ</em>
+```
+
+- クラス名 1 個(英字始まり)を `<em class>` に透過するだけ。見た目
+  (どのクラスがゴマ点・二重傍線か)は CSS が定める
+- `]` の直後が `{.class}` でなければ何もしない。リンク `[x](y)` や
+  素の `[x]` を壊さない。inner はプレーンテキスト扱い(推測しない)
+- `*`/`**`(強調・太字)は素の Markdown で足りるので対象外
+- 青空文庫の種別に対応するクラス例: 傍点 `sesame_dot` / `white_sesame_dot` /
+  `black_circle` / `white_circle` / `bullseye` / `fisheye` / `saltire` /
+  `black_up-pointing_triangle` / `white_up-pointing_triangle`、傍線
+  `underline_solid` / `underline_double` / `underline_dotted` /
+  `underline_dashed` / `underline_wave`(上側は `overline_*`)
+
+対応する CSS の例(縦書き):
+
+```css
+em.sesame_dot { font-style: normal;
+  text-emphasis: filled sesame; -webkit-text-emphasis: filled sesame; }
+em[class^="underline_"] { font-style: normal; text-decoration: underline; }
+```
+
 ## 補足
 
 - 効くのは `.use(cjk_friendly)` したパーサだけ。同一プロセスの他の

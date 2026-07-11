@@ -32,8 +32,8 @@ import re
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline.state_inline import StateInline
 
-__version__ = "0.2.0"
-__all__ = ["cjk_friendly", "ruby", "is_cjk", "__version__"]
+__version__ = "0.3.0"
+__all__ = ["cjk_friendly", "ruby", "bouten", "is_cjk", "__version__"]
 
 # CJK: ideographs, kana, CJK symbols/punctuation, full/half-width forms.
 _CJK_RE = re.compile(
@@ -187,3 +187,69 @@ def ruby(md: MarkdownIt) -> None:
     (ルビ非対応環境では「漢字(かんじ)」に落ちる)。
     """
     md.inline.ruler.after("escape", "cjk_ruby", _ruby_rule)
+
+
+# ---------------------------------------------------------------------------
+# 4. bouten (opt-in): 傍点・傍線 (text-emphasis)。Pandoc 風のクラス付きスパン
+#    ``[テキスト]{.sesame_dot}`` → ``<em class="sesame_dot">テキスト</em>``。
+#
+#    でんでんマークダウンには圏点専用の記法が無く、``*text*`` を縦書き時のみ
+#    圏点表示する仕様しか持たない (種別を区別できない)。青空文庫の注記は
+#    傍点9種・傍線5種を書き分けるため、種別をクラス名として無損失に運べる
+#    Pandoc 風スパンを採用する。プラグイン側は種別を解釈せずクラスを
+#    ``<em class>`` に透過するだけなので、対応表 (どのクラスがどんな圏点か)
+#    は CSS 側 (washi-md / aozorabunko) が持つ。
+#
+#    ``*``/``**`` (強調・太字) は素の Markdown で足りるので対象外。この
+#    プラグインは text-emphasis 系 (=``<em class>``) だけを引き受ける。
+# ---------------------------------------------------------------------------
+
+# クラス名は 1 個・英字始まり (``[A-Za-z_][\w-]*``)。``]`` の直後に ``{.``。
+_BOUTEN_ATTR_RE = re.compile(r"\{\.([A-Za-z_][\w-]*)\}")
+
+
+def _bouten_rule(state: StateInline, silent: bool) -> bool:
+    src = state.src
+    pos = state.pos
+    if src[pos] != "[":
+        return False
+    end = src.find("]", pos + 1)
+    if end < 0 or end == pos + 1:      # ``]`` が無い / ``[]`` は対象外
+        return False
+    inner = src[pos + 1 : end]
+    if "\n" in inner or "[" in inner or "]" in inner:
+        return False                    # 改行・入れ子は扱わない (推測しない)
+    m = _BOUTEN_ATTR_RE.match(src, end + 1)
+    if not m:
+        return False                    # ``]{.class}`` でなければ素通り (リンク等)
+    cls = m.group(1)
+    if not silent:
+        token = state.push("html_inline", "", 0)
+        token.content = f'<em class="{escapeHtml(cls)}">{escapeHtml(inner)}</em>'
+    state.pos = m.end()
+    return True
+
+
+def bouten(md: MarkdownIt) -> None:
+    """markdown-it-py plugin (opt-in): 傍点・傍線 (text-emphasis)。
+
+    ``MarkdownIt().use(bouten)`` で有効になる Pandoc 風のクラス付きスパン:
+
+    - ``[テキスト]{.sesame_dot}``      → ``<em class="sesame_dot">テキスト</em>``
+    - ``[あ]{.underline_double}``      → ``<em class="underline_double">あ</em>``
+
+    クラス名 1 個 (英字始まり) のみを受け付け、``<em class>`` に透過する。
+    見た目 (どのクラスがゴマ点・二重傍線か等) は CSS が定める。青空文庫の
+    種別に対応するクラス名の例:
+
+    - 傍点: ``sesame_dot`` / ``white_sesame_dot`` / ``black_circle`` /
+      ``white_circle`` / ``black_up-pointing_triangle`` /
+      ``white_up-pointing_triangle`` / ``bullseye`` / ``fisheye`` / ``saltire``
+    - 傍線: ``underline_solid`` / ``underline_double`` / ``underline_dotted`` /
+      ``underline_dashed`` / ``underline_wave`` (上側は ``overline_*``)
+
+    ``]`` の直後が ``{.class}`` でなければ何もしない (リンク ``[x](y)`` や
+    素の ``[x]`` を壊さない)。inner はプレーンテキスト扱い (ruby と同じ方針で
+    推測しない)。``*``/``**`` (強調・太字) は素の Markdown に任せる。
+    """
+    md.inline.ruler.before("link", "cjk_bouten", _bouten_rule)
