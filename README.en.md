@@ -68,6 +68,34 @@ md.render("{東京|とう|きょう}")      # → mono ruby (one reading per cha
 - Output includes `<rp>` parentheses, so non-ruby renderers degrade to
   「漢字(かんじ)」
 
+## Emphasis dots / lines (bouten) — optional
+
+Denden Markdown has no dedicated notation for emphasis dots; it only renders
+`*text*` → `<em>` and styles it as sesame dots in vertical writing mode
+(which cannot distinguish the different mark styles). To write emphasis dots
+and lines with an explicit style, the `bouten` plugin adds a Pandoc-style
+class span as a separate opt-in:
+
+```python
+from mdit_py_cjk_friendly import cjk_friendly, bouten
+
+md = MarkdownIt("commonmark").use(cjk_friendly).use(bouten)
+md.render("[邪智暴虐]{.sesame_dot}")      # → <em class="sesame_dot">邪智暴虐</em>
+md.render("[あ]{.underline_double}")      # → <em class="underline_double">あ</em>
+```
+
+- Passes a single class name through to `<em class>`; appearance (which class
+  is sesame dots, double underline, etc.) is defined by CSS
+- Does nothing unless `]` is immediately followed by `{.class}`, so links
+  `[x](y)` and bare `[x]` are left intact. Inner text is literal (no guessing)
+- `*`/`**` (emphasis/strong) are left to plain Markdown
+- Example class names for Aozora Bunko styles: dots `sesame_dot` /
+  `white_sesame_dot` / `black_circle` / `white_circle` / `bullseye` /
+  `fisheye` / `saltire` / `black_up-pointing_triangle` /
+  `white_up-pointing_triangle`; lines `underline_solid` / `underline_double` /
+  `underline_dotted` / `underline_dashed` / `underline_wave` (`overline_*` for
+  the opposite side)
+
 ## License
 
 MIT

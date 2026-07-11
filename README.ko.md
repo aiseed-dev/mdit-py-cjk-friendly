@@ -61,6 +61,33 @@ md.render("{漢字|かんじ}")   # → <ruby>漢字<rp>(</rp><rt>かんじ</rt>
 - `\{` 로 이스케이프. 코드 스팬 안은 변환되지 않음
 - `<rp>` 괄호 포함 출력이므로 루비 미지원 환경에서는 「漢字(かんじ)」로 표시
 
+## 방점·방선(bouten) — 선택
+
+덴덴 마크다운에는 방점 전용 표기가 없고, `*text*` → `<em>` 를 세로쓰기일 때만
+방점으로 표시하는 사양뿐입니다(방점의 종류를 구분할 수 없음). 종류를 지정해
+방점·방선을 쓰려면, 별도의 opt-in 플러그인 `bouten` 이 Pandoc 스타일의 클래스
+스팬을 추가합니다:
+
+```python
+from mdit_py_cjk_friendly import cjk_friendly, bouten
+
+md = MarkdownIt("commonmark").use(cjk_friendly).use(bouten)
+md.render("[邪智暴虐]{.sesame_dot}")      # → <em class="sesame_dot">邪智暴虐</em>
+md.render("[あ]{.underline_double}")      # → <em class="underline_double">あ</em>
+```
+
+- 클래스 이름 하나를 `<em class>` 로 그대로 전달할 뿐이며, 겉모습(어느 클래스가
+  참깨점·이중 밑줄인지)은 CSS 가 정함
+- `]` 바로 뒤가 `{.class}` 가 아니면 아무것도 하지 않으므로 링크 `[x](y)` 와
+  단순 `[x]` 를 깨뜨리지 않음. 안쪽 텍스트는 그대로 취급(추측하지 않음)
+- `*`/`**`(강조·굵게)는 순수 Markdown 에 맡김
+- 아오조라 문고 종류에 대응하는 클래스 예: 방점 `sesame_dot` /
+  `white_sesame_dot` / `black_circle` / `white_circle` / `bullseye` /
+  `fisheye` / `saltire` / `black_up-pointing_triangle` /
+  `white_up-pointing_triangle`, 방선 `underline_solid` / `underline_double` /
+  `underline_dotted` / `underline_dashed` / `underline_wave`(반대쪽은
+  `overline_*`)
+
 ## 라이선스
 
 MIT

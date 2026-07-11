@@ -60,6 +60,30 @@ md.render("{漢字|かんじ}")   # → <ruby>漢字<rp>(</rp><rt>かんじ</rt>
 - 以 `\{` 跳脫;程式碼範圍內不轉換
 - 輸出含 `<rp>` 括號,不支援 ruby 的環境會退化為「漢字(かんじ)」
 
+## 著重號／著重線(bouten)— 選用
+
+電電 Markdown 沒有著重號的專用記法,只會把 `*text*` → `<em>`,並僅在直排時
+以芝麻點顯示(無法區分不同樣式)。若要指定樣式書寫著重號與著重線,獨立的
+opt-in 外掛 `bouten` 提供 Pandoc 風格的類別 span:
+
+```python
+from mdit_py_cjk_friendly import cjk_friendly, bouten
+
+md = MarkdownIt("commonmark").use(cjk_friendly).use(bouten)
+md.render("[邪智暴虐]{.sesame_dot}")      # → <em class="sesame_dot">邪智暴虐</em>
+md.render("[あ]{.underline_double}")      # → <em class="underline_double">あ</em>
+```
+
+- 僅將單一類別名稱透傳為 `<em class>`;外觀(哪個類別是芝麻點、雙底線等)由 CSS 決定
+- 除非 `]` 緊接 `{.class}`,否則不作任何處理,因此連結 `[x](y)` 與單純的 `[x]`
+  不會被破壞。內文以純文字處理(不猜測)
+- `*`/`**`(強調・粗體)交給純 Markdown
+- 對應青空文庫樣式的類別範例:著重號 `sesame_dot` / `white_sesame_dot` /
+  `black_circle` / `white_circle` / `bullseye` / `fisheye` / `saltire` /
+  `black_up-pointing_triangle` / `white_up-pointing_triangle`,著重線
+  `underline_solid` / `underline_double` / `underline_dotted` /
+  `underline_dashed` / `underline_wave`(對側為 `overline_*`)
+
 ## 授權條款
 
 MIT
